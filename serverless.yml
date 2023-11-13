@@ -4,10 +4,10 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: MarkoRole
+  profile: david-mobapp
   region: eu-north-1
   iam:
-    role: arn:aws:iam::228421314153:role/events-practice
+    role: arn:aws:iam::626646945997:role/lectures-cloud
 
 plugins:
   - serverless-webpack
