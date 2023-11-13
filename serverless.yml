@@ -1,0 +1,40 @@
+service: HOTEL-Hakan-Server
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: Julia
+  region: eu-north-1
+  iam:
+    role: arn:aws:iam::429799042192:role/events-cloud
+
+plugins:
+  - serverless-webpack
+
+package: 
+  individually: true
+
+functions:
+  getRooms:
+    handler: functions/getRooms/index.handler
+    events:
+      - httpApi:
+          path: '/rooms'
+          method: GET
+
+
+resources:
+  Resources:
+    roomsDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: rooms-db
+        AttributeDefinitions:
+          - AttributeName: id 
+            AttributeType: S
+        KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        
