@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
             },
         }).promise();
 
-        return sendResponse(200, { success: true });
+        return sendResponse(200, { success: true, newBooking, choosenroom });
     } catch (error) {
         console.error('Error updating item:', error);
         return sendResponse(500, { success: false, message: 'Failed to book the room.' });
