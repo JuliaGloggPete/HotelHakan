@@ -4,10 +4,10 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: david-mobapp
+  profile: tibaHotel
   region: eu-north-1
   iam:
-    role: arn:aws:iam::626646945997:role/lectures-cloud
+    role: arn:aws:iam::998245953721:role/tibaHotel-cloud
 
 plugins:
   - serverless-webpack
