@@ -4,10 +4,10 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: Julia
+  profile: david-mobapp
   region: eu-north-1
   iam:
-    role: arn:aws:iam::429799042192:role/events-cloud
+    role: arn:aws:iam::626646945997:role/lectures-cloud
 
 plugins:
   - serverless-webpack
@@ -40,6 +40,12 @@ functions:
       - httpApi:
           path: '/available'
           method: POST
+  changeBooking:
+    handler: functions/changeBooking/index.handler
+    events:
+      - httpApi:
+          path: '/changeBooking'
+          method: POST        
 
 
 resources:
