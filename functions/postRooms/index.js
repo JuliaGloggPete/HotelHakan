@@ -5,6 +5,11 @@ const db = new AWS.DynamoDB.DocumentClient();
 exports.handler = async (event, context) => {
     const rooms = JSON.parse(event.body);
 
+    // detta behöver mer logik så man inte kan posta vad som helst
+    
+    if (!rooms.type || !rooms.booked || !rooms.price || !rooms.roomnumber) {
+        return sendResponse(400, { success: false, message: "Invalid booking data. You need type, booked, price, and roomnumber." });
+    }
     const timestamp = new Date().getTime();
 
     rooms.id = `${timestamp}`;
