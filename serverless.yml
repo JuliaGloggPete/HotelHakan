@@ -4,10 +4,11 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: MarkoRole
+  profile: Julia
   region: eu-north-1
   iam:
-    role: arn:aws:iam::228421314153:role/events-practice
+    role: arn:aws:iam::429799042192:role/events-cloud
+
 
 
 plugins:

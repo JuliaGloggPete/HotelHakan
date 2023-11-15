@@ -45,6 +45,7 @@ exports.handler = async (event, context) => {
         }
 
 
+      
 
         const timestamp2 = new Date().getTime();
         const bookingsnumber = `${timestamp2}`;
@@ -57,6 +58,35 @@ exports.handler = async (event, context) => {
             endDate: endDate,
             visitors: visitors,
         };
+        const currentDate = new Date(); 
+        if (new Date(startDate) < currentDate) {
+            return sendResponse(400, "Please enter a future date");
+        }
+        if (new Date(startDate) > new Date(endDate)) {
+            return sendResponse(400, "du kan inte resa tbx.");
+        }
+
+        const visitStartDate = new Date(startDate);
+        const visitEndDate = new Date(endDate);
+
+        // Calculate the length of the stay in days
+        const visitLength = Math.floor((visitEndDate - visitStartDate) / (1000 * 60 * 60 * 24));
+//choosenroom.type === "single"
+        let totalPrice;
+        switch (choosenroom.type) {
+          case 'single':
+            totalPrice = visitLength * 500;
+            break;
+          case 'double':
+            totalPrice = visitLength * 1000;
+            break;
+          case 'suite':
+            totalPrice = visitLength * 1500;
+            break;
+          default:
+            totalPrice = 0;
+        }
+
 
         // Update the room with the new booking
         await db.update({
@@ -70,7 +100,10 @@ exports.handler = async (event, context) => {
             },
         }).promise();
 
-        return sendResponse(200, { success: true, newBooking, choosenroom });
+
+
+
+        return sendResponse(200, { success: true, newBooking, choosenroom, price:  totalPrice });
     } catch (error) {
         console.error('Error updating item:', error);
         return sendResponse(500, { success: false, message: 'Failed to book the room.' });
