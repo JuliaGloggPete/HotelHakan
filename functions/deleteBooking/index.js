@@ -4,7 +4,7 @@ const dynamoDB = require("aws-sdk/clients/dynamodb");
 const db = new dynamoDB.DocumentClient();
 
 exports.handler = async (event, context) => {
-  const bookingID = JSON.parse(event.body);
+  const {bookingID} = JSON.parse(event.body);
   try {
     const params = {
       TableName: "rooms-db",
@@ -16,7 +16,7 @@ exports.handler = async (event, context) => {
       const item = data.Items[key];
       if (item.booked.length > 0) {
         const index = item.booked.findIndex(
-          (book) => book.bookingsnumber === "1699957478728"
+          (book) => book.bookingsnumber === bookingID
         );
         if (index > -1) {
           const updateParams = {
@@ -41,9 +41,9 @@ exports.handler = async (event, context) => {
       }
     }
 
-    return sendResponse(200, { success: true, message: "woop woop" }); //data.Items})
-  } catch (error) {
-    console.error("Error:", error);
+    return sendResponse(200, { success: true, message: "woop woop. You're all done. EXTERMINATE" });
+  } catch (err) {
+    console.error("Error:", err);
     return sendResponse(500, {
       success: false,
       message: "Misslyckades med att hämta rum från DynamoDB.",
