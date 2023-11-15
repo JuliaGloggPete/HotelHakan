@@ -55,7 +55,7 @@ exports.handler = async (event, context) => {
         return sendResponse(200, availableRooms);
     } catch (error) {
         console.error("Error:", error);
-        return sendResponse(500, "something is off");
+        return sendResponse(500, "Please enter Date and number of visitors");
     }
 };
 

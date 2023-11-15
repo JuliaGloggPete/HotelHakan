@@ -9,6 +9,7 @@ provider:
   iam:
     role: arn:aws:iam::228421314153:role/events-practice
 
+
 plugins:
   - serverless-webpack
 
@@ -46,6 +47,20 @@ functions:
       - httpApi:
           path: /allBookedRooms
           method: GET
+  deleteBooking:
+    handler: functions/deleteBooking/index.handler
+    events:
+      - httpApi:
+          path: '/deleteBooking'
+          method: POST
+  changeBooking:
+    handler: functions/changeBooking/index.handler
+    events:
+      - httpApi:
+          path: '/changeBooking'
+          method: POST        
+
+
 
 resources:
   Resources:
