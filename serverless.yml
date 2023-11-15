@@ -4,10 +4,10 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: Julia
+  profile: MarkoRole
   region: eu-north-1
   iam:
-    role: arn:aws:iam::429799042192:role/events-cloud
+    role: arn:aws:iam::228421314153:role/events-practice
 
 plugins:
   - serverless-webpack
@@ -40,7 +40,12 @@ functions:
       - httpApi:
           path: '/available'
           method: POST
-
+  getAllBookedRooms:
+    handler: functions/getAllBookedRooms/index.handler
+    events:
+      - httpApi:
+          path: /allBookedRooms
+          method: GET
 
 resources:
   Resources:
