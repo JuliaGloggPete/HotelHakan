@@ -8,9 +8,7 @@ exports.handler = async (event, context) => {
         const bookingDetails = JSON.parse(event.body);
         const { visitors, startDate, endDate } = bookingDetails;
 
-        const currentDate = new Date(); // Get the current date and time
-
-        // Check if the startDate is in the future
+        const currentDate = new Date(); 
         if (new Date(startDate) < currentDate) {
             return sendResponse(400, "Please enter a future date");
         }
