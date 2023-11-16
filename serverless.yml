@@ -46,6 +46,12 @@ functions:
       - httpApi:
           path: '/deleteBooking'
           method: POST
+  changeBooking:
+    handler: functions/changeBooking/index.handler
+    events:
+      - httpApi:
+          path: '/changeBooking'
+          method: POST        
 
 
 resources:

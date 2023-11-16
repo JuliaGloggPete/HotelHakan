@@ -14,7 +14,7 @@ const db = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event, context) => {
     try {
-        // Parse the request body to get booking information
+
         const requestBody = JSON.parse(event.body);
         const { id, firstname, email, startDate, endDate, visitors } = requestBody;
 
@@ -23,7 +23,6 @@ exports.handler = async (event, context) => {
             return sendResponse(400, { success: false, message: "Invalid booking data" });
         }
 
-        // Scan the 'rooms-db' table to find the room with the specified ID
         const { Items } = await db.scan({
             TableName: 'rooms-db',
         }).promise();
@@ -34,7 +33,19 @@ exports.handler = async (event, context) => {
             return sendResponse(404, { message: 'Room not found' });
         }
 
-        // Generate a unique booking number
+        //tanken är att man i theorie öven kan booka en double som en .. 
+        //tänker jag just nu fast till samma pris KACHING!
+
+        if (
+            (choosenroom.type === "single" && visitors !== 1) ||
+            (choosenroom.type === "double" && visitors > 2) ||
+            (choosenroom.type === "suite" && visitors > 3)
+        ) {
+            return sendResponse(400, { success: false, message: "Invalid number of visitors. Please specify 1, 2, or 3." });
+        }
+
+
+
         const timestamp2 = new Date().getTime();
         const bookingsnumber = `${timestamp2}`;
 
