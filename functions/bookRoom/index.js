@@ -90,13 +90,13 @@ exports.handler = async (event, context) => {
         let totalPrice;
         switch (choosenroom.type) {
           case 'single':
-            totalPrice = visitLength * 500;
+            totalPrice = (visitLength-1) * 500;
             break;
           case 'double':
-            totalPrice = visitLength * 1000;
+            totalPrice = (visitLength-1) * 1000;
             break;
           case 'suite':
-            totalPrice = visitLength * 1500;
+            totalPrice = (visitLength-1) * 1500;
             break;
           default:
             totalPrice = 0;
