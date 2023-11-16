@@ -6,12 +6,12 @@ const db = new dynamoDB.DocumentClient();
 exports.handler = async (event, context) => {
   const { bookings } = JSON.parse(event.body);
 
-  //Get data from dynamoDB
   try {
     const params = {
       TableName: "rooms-db",
     };
 
+    //Get data from dynamoDB
     const data = await db.scan(params).promise();
 
     data.Items.forEach((room) => {
@@ -52,6 +52,7 @@ async function delBook(id, index) {
     UpdateExpression: "REMOVE booked[" + index + "]",
   };
   try {
+    console.log("removing.");
     await db
       .update(updateParams, (err) => {
         if (err) {

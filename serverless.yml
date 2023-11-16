@@ -4,19 +4,20 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: Julia
+  profile: tibaHotel
   region: eu-north-1
   iam:
-    role: arn:aws:iam::429799042192:role/events-cloud
-
-
-
+    role: arn:aws:iam::998245953721:role/tibaHotel-cloud
 
 plugins:
   - serverless-webpack
 
 package: 
   individually: true
+
+custom:
+  webpack:
+    concurrency: 3
 
 functions:
   getRooms:
