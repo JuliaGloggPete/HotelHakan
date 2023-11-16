@@ -6,48 +6,71 @@ const db = new AWS.DynamoDB.DocumentClient();
 exports.handler = async (event, context) => {
     try {
         const requestBody = JSON.parse(event.body);
-        const bookingsnumber = requestBody.bookingsnumber;
-        const newVisitors = requestBody.visitors;
-        const newStartDate = requestBody.startDate;
-        const newEndDate = requestBody.endDate;
+        const { bookingsnumber, visitors: newVisitors, startDate: newStartDate, endDate: newEndDate } = requestBody;
 
         // Hämta alla rum från databasen
-        const params = {
-            TableName: 'rooms-db',
-        };
-        const result = await db.scan(params).promise();
+        const params = { TableName: 'rooms-db' };
+        const { Items: rooms } = await db.scan(params).promise();
 
-        // Hitta och uppdatera bokningen med hänsyn till tillgänglighet
-        const updatedRooms = result.Items.map(room => {
+        // Hitta och uppdatera bokningen
+        const updatedRooms = rooms.map(room => {
             const updatedBookings = room.booked.map(booking => {
                 if (booking.bookingsnumber === bookingsnumber) {
                     // Kolla om det finns tillgängliga rum för de nya datumen och antalet besökare
-                    if (isRoomAvailable(room, newStartDate, newEndDate, newVisitors)) {
-                        // Uppdatera bokningen
-                        booking.visitors = newVisitors || booking.visitors;
-                        booking.startDate = newStartDate || booking.startDate;
-                        booking.endDate = newEndDate || booking.endDate;
-                        // ... andra fält att uppdatera
-                    } else {
-                        throw new Error('Inga tillgängliga rum för de nya datumen eller antalet besökare.');
+                    const startDateInRange = new Date(newStartDate) >= new Date(booking.endDate) || new Date(newEndDate) <= new Date(booking.startDate);
+
+                    // Uppdatera bokningen
+                    if ((room.type === 'single' && newVisitors !== 1) ||
+                        (room.type === 'double' && newVisitors > 2) ||
+                        (room.type === 'suite' && newVisitors > 3)) {
+                        throw new Error('Invalid number of visitors. Please specify 1, 2, or 3.');
                     }
+
+                   const currentDate = new Date();
+                    if (new Date(newStartDate) < currentDate) {
+                        throw new Error('Please enter a future date');
+                    }
+
+                    if (new Date(newStartDate) > new Date(newEndDate)) {
+                        throw new Error('You can not travel back in time.');
+                    }
+
+                    //Om det inte är samma bokningsnummer, kolla om det finns andra bokningar som krockar med de nya datumen. 
+
+                    if (!startDateInRange) {
+                        const otherBookings = room.booked.filter(otherBooking => otherBooking.bookingsnumber !== bookingsnumber);
+                        for (const otherBooking of otherBookings) {
+                            if (
+                                (new Date(newStartDate) >= new Date(otherBooking.startDate) && new Date(newStartDate) < new Date(otherBooking.endDate)) ||
+                                (new Date(newEndDate) >= new Date(otherBooking.startDate) && new Date(newEndDate) <= new Date(otherBooking.endDate)) ||
+                                (new Date(newStartDate) <= new Date(otherBooking.startDate) && new Date(newEndDate) >= new Date(otherBooking.endDate))
+                            ) {
+                                throw new Error('The room is already booked for the specified dates.');
+                            }
+                        }
+                    }
+
+
+
+
+                    booking.visitors = newVisitors || booking.visitors;
+                    booking.startDate = newStartDate || booking.startDate;
+                    booking.endDate = newEndDate || booking.endDate;
                 }
                 return booking;
             });
 
-            return {
-                ...room,
-                booked: updatedBookings,
-            };
+            return { ...room, booked: updatedBookings };
         });
 
         // Spara de uppdaterade rummen tillbaka till databasen
         await Promise.all(updatedRooms.map(updatedRoom => {
+            const { id, booked } = updatedRoom;
             const updateParams = {
                 TableName: 'rooms-db',
-                Key: { id: updatedRoom.id },
+                Key: { id },
                 UpdateExpression: 'SET booked = :booked',
-                ExpressionAttributeValues: { ':booked': updatedRoom.booked },
+                ExpressionAttributeValues: { ':booked': booked },
             };
             return db.update(updateParams).promise();
         }));
@@ -55,40 +78,8 @@ exports.handler = async (event, context) => {
         return sendResponse(200, { success: true, message: 'Bokningen uppdaterad framgångsrikt.' });
     } catch (error) {
         console.error('Error:', error);
-        return sendResponse(500, { success: false, message: 'Misslyckades med att uppdatera bokningen.' });
+        const statusCode = error.statusCode || 500;
+        const errorMessage = error.message || 'Misslyckades med att uppdatera bokningen.';
+        return sendResponse(statusCode, { success: false, message: errorMessage });
     }
 };
-
-// Hjälpmetod för att kontrollera om det finns tillgängliga rum för de nya datumen och antalet besökare
-function isRoomAvailable(room, newStartDate, newEndDate, newVisitors) {
-    // Om rummet inte är bokat alls, anses det vara tillgängligt
-    if (room.booked.length === 0) {
-        return true;
-    }
-
-    // Om rummet är bokat, kontrollera kapacitet och datumen
-    const roomCapacity = getRoomCapacity(room.type);
-    if (roomCapacity >= newVisitors) {
-        // Kontrollera om rummet är tillgängligt under de nya datumen
-        return room.booked.every(booking => {
-            const startDateInRange = new Date(newStartDate) >= new Date(booking.endDate) || new Date(newEndDate) <= new Date(booking.startDate);
-            return startDateInRange;
-        });
-    }
-
-    return false;
-}
-
-// Hjälpmetod för att hämta rummets kapacitet baserat på rumstypen
-function getRoomCapacity(roomType) {
-    switch (roomType) {
-        case 'single':
-            return 1;
-        case 'double':
-            return 2;
-        case 'suite':
-            return 3;
-        default:
-            return 0; 
-    }
-}

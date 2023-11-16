@@ -4,10 +4,13 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: tibaHotel
+  profile: Julia
   region: eu-north-1
   iam:
-    role: arn:aws:iam::998245953721:role/tibaHotel-cloud
+    role: arn:aws:iam::429799042192:role/events-cloud
+
+
+
 
 plugins:
   - serverless-webpack
@@ -40,6 +43,12 @@ functions:
       - httpApi:
           path: '/available'
           method: POST
+  getAllBookedRooms:
+    handler: functions/getAllBookedRooms/index.handler
+    events:
+      - httpApi:
+          path: /allBookedRooms
+          method: GET
   deleteBooking:
     handler: functions/deleteBooking/index.handler
     events:
@@ -52,6 +61,7 @@ functions:
       - httpApi:
           path: '/changeBooking'
           method: POST        
+
 
 
 resources:
