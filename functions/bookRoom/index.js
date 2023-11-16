@@ -33,6 +33,21 @@ exports.handler = async (event, context) => {
             return sendResponse(404, { message: 'Room not found' });
         }
 
+        if (choosenroom.booked && choosenroom.booked.length > 0) {
+                for (const booking of choosenroom.booked) {
+                    if (
+                        (new Date(startDate) >= new Date(booking.startDate) && new Date(startDate) < new Date(booking.endDate)) ||
+                        (new Date(endDate) >= new Date(booking.startDate) && new Date(endDate) <= new Date(booking.endDate)) ||
+                        (new Date(startDate) <= new Date(booking.startDate) && new Date(endDate) >= new Date(booking.endDate))
+                    ) {
+                        return sendResponse(404, { message: 'Room already booked' });
+                    }
+                }
+            }
+     
+      
+
+
         //tanken är att man i theorie öven kan booka en double som en .. 
         //tänker jag just nu fast till samma pris KACHING!
 

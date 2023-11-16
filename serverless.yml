@@ -4,10 +4,11 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
-  profile: david-mobapp
+  profile: Julia
   region: eu-north-1
   iam:
-    role: arn:aws:iam::626646945997:role/lectures-cloud
+    role: arn:aws:iam::429799042192:role/events-cloud
+
 
 
 
