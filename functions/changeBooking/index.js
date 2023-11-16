@@ -26,10 +26,36 @@ exports.handler = async (event, context) => {
                         throw new Error('Invalid number of visitors. Please specify 1, 2, or 3.');
                     }
 
+                   const currentDate = new Date();
+                    if (new Date(newStartDate) < currentDate) {
+                        throw new Error('Please enter a future date');
+                    }
+
+                    if (new Date(newStartDate) > new Date(newEndDate)) {
+                        throw new Error('You can not travel back in time.');
+                    }
+
+                    //Om det inte är samma bokningsnummer, kolla om det finns andra bokningar som krockar med de nya datumen. 
+
+                    if (!startDateInRange) {
+                        const otherBookings = room.booked.filter(otherBooking => otherBooking.bookingsnumber !== bookingsnumber);
+                        for (const otherBooking of otherBookings) {
+                            if (
+                                (new Date(newStartDate) >= new Date(otherBooking.startDate) && new Date(newStartDate) < new Date(otherBooking.endDate)) ||
+                                (new Date(newEndDate) >= new Date(otherBooking.startDate) && new Date(newEndDate) <= new Date(otherBooking.endDate)) ||
+                                (new Date(newStartDate) <= new Date(otherBooking.startDate) && new Date(newEndDate) >= new Date(otherBooking.endDate))
+                            ) {
+                                throw new Error('The room is already booked for the specified dates.');
+                            }
+                        }
+                    }
+
+
+
+
                     booking.visitors = newVisitors || booking.visitors;
                     booking.startDate = newStartDate || booking.startDate;
                     booking.endDate = newEndDate || booking.endDate;
-                    // ... andra fält att uppdatera
                 }
                 return booking;
             });
