@@ -4,49 +4,64 @@ const dynamoDB = require("aws-sdk/clients/dynamodb");
 const db = new dynamoDB.DocumentClient();
 
 exports.handler = async (event, context) => {
-  const {bookingID} = JSON.parse(event.body);
+  const { bookings } = JSON.parse(event.body);
+
   try {
     const params = {
       TableName: "rooms-db",
     };
 
+    //Get data from dynamoDB
     const data = await db.scan(params).promise();
 
-    for (let key in data.Items) {
-      const item = data.Items[key];
-      if (item.booked.length > 0) {
-        const index = item.booked.findIndex(
-          (book) => book.bookingsnumber === bookingID
-        );
-        if (index > -1) {
-          const updateParams = {
-            TableName: "rooms-db",
-            Key: {
-              id: item.id,
-            },
-            UpdateExpression: 'REMOVE booked[' + index + ']',
-          };
-          try {
-            await db.update(updateParams, (err) => {
-              if (err) {
-                
-              } else {
-                
-              }
-            }).promise();
-          } catch (err) { 
-            return sendResponse(500, {message: err});
-          }
-        }
+    data.Items.forEach((room) => {
+      if (room.booked.length > 0) {
+        room.booked.forEach((booking) => {
+          bookings.forEach((bookingToDelete, index) => {
+            if (
+              booking.bookingsnumber === bookingToDelete ||
+              booking.email === bookingToDelete
+            ) {
+              delBook(room.id, index);
+              return;
+            }
+          });
+        });
       }
-    }
+    });
 
-    return sendResponse(200, { success: true, message: "woop woop. You're all done. EXTERMINATE" });
+    return sendResponse(200, {
+      success: true,
+      message: "woop woop. You're all done. EXTERMINATE",
+    });
   } catch (err) {
-    console.error("Error:", err);
     return sendResponse(500, {
       success: false,
       message: "Misslyckades med att hämta rum från DynamoDB.",
     });
   }
 };
+
+//Delete booking from dynamoDB
+async function delBook(id, index) {
+  const updateParams = {
+    TableName: "rooms-db",
+    Key: {
+      id: id,
+    },
+    UpdateExpression: "REMOVE booked[" + index + "]",
+  };
+  try {
+    console.log("removing."); //This runs even the first time but the database doesn't update
+    await db.update(updateParams, (err) => {
+      if (err) {
+        console.log("Inside the update with err");
+      } else {
+        console.log("Inside the update");
+      }
+    }).promise();
+    console.log("after");
+  } catch (err) {
+    return sendResponse(500, { message: err });
+  }
+}
