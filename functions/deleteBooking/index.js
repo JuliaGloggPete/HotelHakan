@@ -52,14 +52,15 @@ async function delBook(id, index) {
     UpdateExpression: "REMOVE booked[" + index + "]",
   };
   try {
-    console.log("removing.");
-    await db
-      .update(updateParams, (err) => {
-        if (err) {
-        } else {
-        }
-      })
-      .promise();
+    console.log("removing."); //This runs even the first time but the database doesn't update
+    await db.update(updateParams, (err) => {
+      if (err) {
+        console.log("Inside the update with err");
+      } else {
+        console.log("Inside the update");
+      }
+    }).promise();
+    console.log("after");
   } catch (err) {
     return sendResponse(500, { message: err });
   }
