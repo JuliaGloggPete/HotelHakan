@@ -1,3 +1,73 @@
+Hej David!
+
+våra endpoints   
+  GET - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/rooms
+  GET - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/allBookedRooms
+  
+  POST - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/rooms
+  om du byggar ett till room så ska du skicka med, booked, roomnumber, price & type enligt nedan ex: 
+  	{
+			"booked": [],
+			"roomnumber": 301,
+			"price": 1500,
+			"type": "suite"
+		}
+  POST - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/available
+  - Vi tänkte att man först få ut en lista med alla available rooms och för att få de så skickar du in:
+  		{
+					"visitors": 3,
+					"endDate": "2023-12-25",
+					"startDate": "2023-12-20"
+			
+	
+				}
+
+  För att sedan bookar
+  POST - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/book
+
+  	{     "email": "david@david.se",
+          "firstname": "David", 
+					"visitors": 3,
+					"endDate": "2023-12-25",
+					"startDate": "2023-12-20",
+     	"id": "1699898627953"
+			
+	
+				}
+    Om du vill ändrar din bookning
+POST - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/changeBooking
+
+{     "email": "david@david.se",
+          "firstname": "David", 
+					"visitors": 2,
+					"endDate": "2023-12-25",
+					"startDate": "2023-12-20",
+     			"bookingsnumber": "1700225033739"
+			
+	
+				}
+
+
+  POST - https://0za39tmrm6.execute-api.eu-north-1.amazonaws.com/deleteBooking
+
+  och om du vill ta bort din booknig: antingen 
+  
+{     "email": "david@david.se"
+        } eller{
+     			"bookingsnumber": "1700225033739"
+			
+	
+				}
+
+
+
+
+
+
+
+
+
+
 <!--
 title: 'AWS NodeJS Example'
 description: 'This template demonstrates how to deploy a NodeJS function running on AWS Lambda using the traditional Serverless Framework.'
