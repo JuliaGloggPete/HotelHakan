@@ -58,21 +58,6 @@ exports.handler = async (event, context) => {
         ) {
             return sendResponse(400, { success: false, message: "Invalid number of visitors. Please specify 1, 2, or 3." });
         }
-
-
-      
-
-        const timestamp2 = new Date().getTime();
-        const bookingsnumber = `${timestamp2}`;
-
-        const newBooking = {
-            bookingsnumber: bookingsnumber,
-            firstname: firstname,
-            email: email,
-            startDate: startDate,
-            endDate: endDate,
-            visitors: visitors,
-        };
         const currentDate = new Date(); 
         if (new Date(startDate) < currentDate) {
             return sendResponse(400, "Please enter a future date");
@@ -90,17 +75,35 @@ exports.handler = async (event, context) => {
         let totalPrice;
         switch (choosenroom.type) {
           case 'single':
-            totalPrice = (visitLength-1) * 500;
+            totalPrice = (visitLength) * 500;
             break;
           case 'double':
-            totalPrice = (visitLength-1) * 1000;
+            totalPrice = (visitLength) * 1000;
             break;
           case 'suite':
-            totalPrice = (visitLength-1) * 1500;
+            totalPrice = (visitLength) * 1500;
             break;
           default:
             totalPrice = 0;
         }
+
+        const timestamp2 = new Date().getTime();
+        const bookingsnumber = `${timestamp2}`;
+
+        const newBooking = {
+            bookingsnumber: bookingsnumber,
+            firstname: firstname,
+            email: email,
+            startDate: startDate,
+            endDate: endDate,
+            visitors: visitors,
+            roomid: id,
+            totalPrice: totalPrice,
+            
+        };
+        
+
+       
 
 
         // Update the room with the new booking
